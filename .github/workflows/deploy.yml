@@ -19,17 +19,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: sudo apt update
-      - run: sudo apt install -y rsync
-      - run: sudo apt install -y openssh-client
-      - run: sudo apt install -y secure-delete
-      - run: sudo apt install -y sshpass
-      - run: mkdir -p ~/.ssh
-      - run: echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
-      - run: chmod 600 ~/.ssh/id_rsa
-      - run: sshpass -p "${{secrets.SERVER_PASSWORD}}" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{env.username}}@${{env.hostname}} "echo \"${{secrets.SERVER_PASSWORD}}\" | sudo -S chown --recursive ${{env.username}} ${{env.destination}}"
-      - run: rsync -p ${{secrets.SERVER_PASSWORD}} --archive --verbose --compress --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" ./ ${{env.username}}@${{env.hostname}}:${{env.destination}}
-        continue-on-error: true 
-      - run: sshpass -p "${{secrets.SERVER_PASSWORD}}" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{env.username}}@${{env.hostname}} "echo \"${{secrets.SERVER_PASSWORD}}\" | sudo -S chown --recursive ${{env.username}} ${{env.destination}}"
-      - run: srm ~/.ssh/id_rsa
+            - uses: actions/checkout@v4
+            - run: sudo apt update
+            - run: sudo apt install -y rsync
+            - run: sudo apt install -y openssh-client
+            - run: sudo apt install -y secure-delete
+            - run: mkdir -p ~/.ssh
+            - run: echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+            - run: chmod 600 ~/.ssh/id_rsa
+            - run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{env.username}}@${{env.hostname}} "sudo chown --recursive ${{env.username}} ${{env.destination}}"
+            - run: rsync --archive --verbose --compress --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" ./ ${{env.username}}@${{env.hostname}}:${{env.destination}}
+              continue-on-error: true
+            - run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{env.username}}@${{env.hostname}} "sudo chown --recursive ${{env.target_username}}:${{env.target_group}} ${{env.destination}}"
+            
+            - run: srm ~/.ssh/id_rsa
